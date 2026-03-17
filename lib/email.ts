@@ -3,9 +3,11 @@ import { prisma } from "@/lib/prisma"
 import crypto from "crypto"
 
 
-const resend  = new Resend(process.env.RESEND_API_KEY)
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL
-const FROM    = process.env.EMAIL_FROM ?? "TrueHire <noreply@yourdomain.com>"
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY ?? "")
+}
+function getAppUrl() { return process.env.NEXT_PUBLIC_APP_URL ?? "" }
+function getFrom()   { return process.env.EMAIL_FROM ?? "TrueHire <noreply@yourdomain.com>" }
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex")
@@ -78,10 +80,10 @@ export async function sendVerificationEmail(
     },
   })
 
-  const url = `${APP_URL}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`
+  const url = `${getAppUrl()}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`
 
-  await resend.emails.send({
-    from:    FROM,
+  await getResend().emails.send({
+    from:    getFrom(),
     to:      email,
     subject: "Verify your TrueHire account",
     html: emailTemplate(`
@@ -109,10 +111,10 @@ export async function sendForgotPasswordEmail(
   name: string,
   token: string
 ): Promise<void> {
-  const url = `${APP_URL}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`
+  const url = `${getAppUrl()}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`
 
-  await resend.emails.send({
-    from:    FROM,
+  await getResend().emails.send({
+    from:    getFrom(),
     to:      email,
     subject: "Reset your TrueHire password",
     html: emailTemplate(`
@@ -143,12 +145,12 @@ export async function sendInterviewReminderEmail(
   interviewId: string,
   startTime: Date
 ): Promise<void> {
-  const url     = `${APP_URL}/interview/${interviewId}/prepare`
+  const url     = `${getAppUrl()}/interview/${interviewId}/prepare`
   const timeStr = startTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
   const dateStr = startTime.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
 
-  await resend.emails.send({
-    from:    FROM,
+  await getResend().emails.send({
+    from:    getFrom(),
     to:      email,
     subject: `Your interview starts in 30 minutes — ${interviewTitle}`,
     html: emailTemplate(`

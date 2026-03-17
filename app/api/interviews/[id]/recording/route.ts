@@ -16,14 +16,16 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
    No extra package needed
 ===================================================== */
 
-const r2 = new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId:     process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-  },
-})
+function getR2() {
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId:     process.env.R2_ACCESS_KEY_ID ?? "",
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
+    },
+  })
+}
 
 /* =====================================================
    RATE LIMITING
@@ -76,7 +78,7 @@ async function uploadToR2(
 ): Promise<string> {
   const key = `recordings/${filename}`
 
-  await r2.send(
+  await getR2().send(
     new PutObjectCommand({
       Bucket:      process.env.R2_BUCKET!,
       Key:         key,

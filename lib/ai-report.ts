@@ -10,10 +10,10 @@ import { prisma } from "@/lib/prisma"
    GEMINI CLIENT
 ===================================================== */
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-
-// gemini-1.5-flash is free tier — fast and capable
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+function getModel() {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "")
+  return genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+}
 
 /* =====================================================
    TYPES
@@ -111,7 +111,7 @@ Rules:
      Call Gemini
   -------------------------- */
 
-  const result = await model.generateContent(prompt)
+  const result = await getModel().generateContent(prompt)
   const text   = result.response.text()
 
   // Strip markdown fences if Gemini adds them anyway
