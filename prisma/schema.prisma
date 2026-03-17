@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model chatmessage {
+  id          String                 @id @default(cuid())
+  message     String
+  senderRole  chatmessage_senderRole
+  createdAt   DateTime               @default(now())
+  interviewId String
+  interview   interview              @relation(fields: [interviewId], references: [id], onDelete: Cascade, map: "ChatMessage_interviewId_fkey")
+
+  @@index([interviewId], map: "ChatMessage_interviewId_idx")
+}
+
+model company {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  logo        String?
+  website     String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?   // soft delete
+  interview   interview[]
+  question    question[]
+  user        user[]
+
+  @@index([name], map: "Company_name_idx")
+  @@index([deletedAt], map: "Company_deletedAt_idx")
+}
+
+model interview {
+  id                                 String              @id @default(cuid())
+  title                              String
+  description                        String?
+  startTime                          DateTime
+  endTime                            DateTime
+  duration                           Int
+  status                             interview_status    @default(SCHEDULED)
+  videoRecording                     String?
+  audioRecording                     String?
+  screenRecording                    String?
+  transcript                         String?
+  sentimentScore                     Float?
+  confidenceScore                    Float?
+  communicationScore                 Float?
+  cheatingProbability                Float?              @default(0)
+  createdAt                          DateTime            @default(now())
+  updatedAt                          DateTime            @updatedAt
+  companyId                          String
+  candidateId                        String
+  interviewerId                      String?
+  chatmessage                        chatmessage[]
+  user_interview_candidateIdTouser   user                @relation("interview_candidateIdTouser", fields: [candidateId], references: [id], onDelete: Cascade, map: "Interview_candidateId_fkey")
+  company                            company             @relation(fields: [companyId], references: [id], onDelete: Cascade, map: "Interview_companyId_fkey")
+  user_interview_interviewerIdTouser user?               @relation("interview_interviewerIdTouser", fields: [interviewerId], references: [id], map: "Interview_interviewerId_fkey")
+  interviewquestion                  interviewquestion[]
+  report                             report?
+  violation                          violation[]
+
+  @@index([candidateId], map: "Interview_candidateId_idx")
+  @@index([companyId], map: "Interview_companyId_idx")
+  @@index([interviewerId], map: "Interview_interviewerId_idx")
+  @@index([status], map: "Interview_status_idx")
+}
+
+model interviewquestion {
+  id          String    @id @default(cuid())
+  order       Int
+  answer      String?
+  timeSpent   Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  interviewId String
+  questionId  String
+  interview   interview @relation(fields: [interviewId], references: [id], onDelete: Cascade, map: "InterviewQuestion_interviewId_fkey")
+  question    question  @relation(fields: [questionId], references: [id], onDelete: Cascade, map: "InterviewQuestion_questionId_fkey")
+
+  @@unique([interviewId, questionId], map: "InterviewQuestion_interviewId_questionId_key")
+  @@index([interviewId], map: "InterviewQuestion_interviewId_idx")
+  @@index([questionId], map: "InterviewQuestion_questionId_fkey")
+}
+
+model question {
+  id                String              @id @default(cuid())
+  text              String
+  type              String              @default("GENERAL")
+  codeTemplate      String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  companyId         String
+  interviewquestion interviewquestion[]
+  company           company             @relation(fields: [companyId], references: [id], onDelete: Cascade, map: "Question_companyId_fkey")
+
+  @@index([companyId], map: "Question_companyId_idx")
+}
+
+model report {
+  id              String    @id @default(cuid())
+  summary         String
+  strengths       Json
+  weaknesses      Json
+  recommendations Json
+  overallScore    Float
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  interviewId     String    @unique(map: "Report_interviewId_key")
+  interview       interview @relation(fields: [interviewId], references: [id], onDelete: Cascade, map: "Report_interviewId_fkey")
+
+  @@index([interviewId], map: "Report_interviewId_idx")
+}
+
+model session {
+  id         String   @id @default(cuid())
+  token      String   @unique @db.VarChar(255)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  ipAddress  String?  // for session hijacking detection
+  userAgent  String?  @db.VarChar(500) // UA strings can be long
+  userId     String
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt], map: "Session_expiresAt_idx") // speeds up expired session cleanup
+}
+
+model user {
+  id                                      String      @id @default(cuid())
+  email                                   String      @unique(map: "User_email_key")
+  name                                    String
+  password                                String
+  role                                    user_role   @default(CANDIDATE)
+  status                                  user_status @default(ACTIVE)
+  phone                                   String?
+  profileImage                            String?
+  isActive                                Boolean     @default(true)
+  emailVerified                           Boolean     @default(false)
+  lastLoginAt                             DateTime?   // updated on every successful login
+  createdAt                               DateTime    @default(now())
+  updatedAt                               DateTime    @updatedAt
+  deletedAt                               DateTime?   // soft delete
+  companyId                               String?
+  interview_interview_candidateIdTouser   interview[] @relation("interview_candidateIdTouser")
+  interview_interview_interviewerIdTouser interview[] @relation("interview_interviewerIdTouser")
+  session                                 session[]
+  company                                 company?    @relation(fields: [companyId], references: [id], map: "User_companyId_fkey")
+  violation                               violation[]
+
+  @@index([companyId], map: "User_companyId_idx")
+  @@index([email], map: "User_email_idx")
+  @@index([role], map: "User_role_idx")
+  @@index([status], map: "User_status_idx")
+  @@index([deletedAt], map: "User_deletedAt_idx")
+}
+
+model violation {
+  id          String         @id @default(cuid())
+  type        violation_type
+  description String
+  timestamp   DateTime       @default(now())
+  severity    Int            @default(1)
+  createdAt   DateTime       @default(now())
+  interviewId String
+  userId      String
+  interview   interview      @relation(fields: [interviewId], references: [id], onDelete: Cascade, map: "Violation_interviewId_fkey")
+  user        user           @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Violation_userId_fkey")
+
+  @@index([interviewId], map: "Violation_interviewId_idx")
+  @@index([userId], map: "Violation_userId_idx")
+}
+
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum violation_type {
+  TAB_SWITCH
+  FOCUS_LOSS
+  COPY_PASTE_ATTEMPT
+  RIGHT_CLICK_ATTEMPT
+  TEXT_SELECTION_ATTEMPT
+  MULTIPLE_MONITORS
+  SUSPICIOUS_BEHAVIOR
+}
+
+enum chatmessage_senderRole {
+  ADMIN
+  INTERVIEWER
+  CANDIDATE
+}
+
+enum user_role {
+  ADMIN
+  INTERVIEWER
+  CANDIDATE
+}
+
+enum user_status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum interview_status {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}

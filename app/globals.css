@@ -1,0 +1,219 @@
+@import "tailwindcss";
+
+/* =====================================================
+   CSS VARIABLES — Dark theme (shadcn/ui compatible)
+===================================================== */
+
+:root {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
+
+  --radius: 0.75rem;
+}
+
+/* =====================================================
+   BASE STYLES
+===================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(2 6 23);  /* slate-950 */
+  color: rgb(241 245 249);         /* slate-100 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* =====================================================
+   SCROLLBAR — dark themed
+===================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(15 23 42); /* slate-900 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85); /* slate-700 */
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139); /* slate-500 */
+}
+
+/* =====================================================
+   SELECTION
+===================================================== */
+
+::selection {
+  background-color: rgb(99 102 241 / 0.3); /* indigo-500/30 */
+  color: #fff;
+}
+
+/* =====================================================
+   FOCUS RING
+===================================================== */
+
+:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgb(2 6 23),            /* ring-offset slate-950 */
+    0 0 0 4px rgb(99 102 241 / 0.5);  /* indigo-500/50 */
+}
+
+/* =====================================================
+   AUTOFILL — remove browser yellow background
+===================================================== */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgb(30 41 59 / 0.6) inset;
+  -webkit-text-fill-color: #f1f5f9;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* =====================================================
+   DATE / TIME INPUTS — dark picker
+===================================================== */
+
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+/* =====================================================
+   UTILITY CLASSES
+===================================================== */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.gradient-text {
+  background: linear-gradient(to right, #818cf8, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background-color: rgb(15 23 42 / 0.8);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgb(51 65 85 / 0.5);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* =====================================================
+   KEYFRAMES
+===================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================
+   PROSE — report summaries and text content
+===================================================== */
+
+.prose-dark {
+  color: rgb(203 213 225); /* slate-300 */
+  line-height: 1.75;
+}
+
+.prose-dark p {
+  margin-bottom: 0.75rem;
+}
+
+.prose-dark strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* =====================================================
+   PRINT STYLES — for PDF export via browser print
+===================================================== */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .print\:hidden { display: none !important; }
+  nav, footer, aside, [data-slot="sidebar"] { display: none !important; }
+  #report-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .bg-slate-950, .bg-slate-900\/80, .bg-slate-900 {
+    background: #fff !important;
+    border-color: #e2e8f0 !important;
+  }
+  .text-white, .text-slate-200, .text-slate-300 { color: #000 !important; }
+  .text-slate-400, .text-slate-500 { color: #64748b !important; }
+  .text-indigo-400 { color: #4f46e5 !important; }
+  .text-green-400  { color: #16a34a !important; }
+  .text-red-400    { color: #dc2626 !important; }
+  .text-yellow-400 { color: #ca8a04 !important; }
+  .rounded-2xl, .rounded-xl { border-radius: 8px !important; }
+  .shadow-xl, .shadow-2xl, .shadow-lg { box-shadow: none !important; }
+  .border-slate-700\/50, .border-slate-700 { border-color: #e2e8f0 !important; }
+  @page { margin: 20mm; }
+}
