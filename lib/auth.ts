@@ -6,11 +6,8 @@ import crypto from "crypto"
    ENV GUARD
 ===================================================== */
 
-const JWT_SECRET = process.env.JWT_SECRET
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
-
-if (!JWT_SECRET) throw new Error("JWT_SECRET is not set in environment")
-if (!JWT_REFRESH_SECRET) throw new Error("JWT_REFRESH_SECRET is not set in environment")
+function getJwtSecret() { return process.env.JWT_SECRET ?? "" }
+function getJwtRefreshSecret() { return process.env.JWT_REFRESH_SECRET ?? "" }
 
 // Access token should be short-lived — 15 minutes default
 // Refresh token handles longevity
