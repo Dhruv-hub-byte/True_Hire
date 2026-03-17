@@ -208,7 +208,9 @@ export async function POST(req: NextRequest) {
 
     return response
   } catch (error) {
-    console.error("Login error:", error instanceof Error ? error.message : error)
+    console.error("Login error FULL:", error)
+    console.error("Login error message:", error instanceof Error ? error.message : error)
+    console.error("Login error stack:", error instanceof Error ? error.stack : "no stack")
 
     return NextResponse.json(
       { error: "Internal server error" },
