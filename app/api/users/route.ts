@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { withAuth, AuthenticatedRequest } from "@/lib/middleware"
-import { user_role } from "@prisma/client"
 
 /* ======================================================
    RATE LIMITING (in-memory — swap for Upstash in prod)
@@ -74,9 +73,9 @@ async function getHandler(req: AuthenticatedRequest) {
        Validate role filter if provided
     -------------------------- */
 
-    const validRoles: user_role[] = ["ADMIN", "INTERVIEWER", "CANDIDATE"]
+    const validRoles = ["ADMIN", "INTERVIEWER", "CANDIDATE"] as const
 
-    if (role && !validRoles.includes(role as user_role)) {
+    if (role && !validRoles.includes(role as any)) {
       return NextResponse.json(
         { error: `Invalid role. Must be one of: ${validRoles.join(", ")}` },
         { status: 400 }
@@ -109,7 +108,7 @@ async function getHandler(req: AuthenticatedRequest) {
     -------------------------- */
 
     const where = {
-      ...(role ? { role: role as user_role } : {}),
+      ...(role ? { role: role as "ADMIN" | "INTERVIEWER" | "CANDIDATE" } : {}),
       ...(status ? { status: status as any } : {}),
       // Exclude soft-deleted users unless explicitly requested
       ...(!includeDeleted ? { deletedAt: null } : {}),
