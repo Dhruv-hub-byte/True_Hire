@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     -------------------------- */
 
     const strength = validatePasswordStrength(password)
-    if (!strength.valid) {
+    if (!strength.isStrong) {
       return NextResponse.json(
         { error: strength.errors[0] },
         { status: 400 }
