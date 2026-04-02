@@ -65,8 +65,11 @@ async function postHandler(
        Expires 1 hour after scheduled end time
     -------------------------- */
 
+    const endTime = new Date(interview.endTime).getTime()
+    const oneHourFromNow = Date.now() + 60 * 60 * 1000
+
     const expiryTs = Math.floor(
-      (new Date(interview.endTime).getTime() + 60 * 60 * 1000) / 1000
+      Math.max(endTime + 60 * 60 * 1000, oneHourFromNow) / 1000  // ✅ always at least 1hr from now
     )
 
     const roomName = `truehire-${interviewId}`
@@ -82,7 +85,7 @@ async function postHandler(
         privacy:    "private",
         properties: {
           exp:                     expiryTs,
-          enable_recording:        "cloud",
+          //enable_recording:        "cloud",
           max_participants:        5,
           enable_prejoin_ui:       false,
           enable_knocking:         false,
@@ -106,9 +109,10 @@ async function postHandler(
       const room = await getRes.json()
       roomUrl    = room.url
     } else {
-      const err = await dailyRes.json()
-      throw new Error(err.error || "Failed to create video room")
-    }
+  const err = await dailyRes.json()
+  console.error("Daily.co error response:", JSON.stringify(err, null, 2))  // ← add this
+  throw new Error(err.error || "Failed to create video room")
+}
 
     /* -------------------------
        Save room URL to interview
