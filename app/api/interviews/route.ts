@@ -42,7 +42,8 @@ function getClientIp(req: NextRequest): string {
 
 const createInterviewSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title too long").trim(),
-  description: z.string().max(2000, "Description too long").optional(),
+  description: z.nullable(z.string().max(2000, "Description too long")).optional(),
+  //           ^^ wrap with z.nullable() FIRST, then .optional()
   startTime: z.string().datetime("Invalid startTime — use ISO 8601"),
   endTime: z.string().datetime("Invalid endTime — use ISO 8601"),
   duration: z
@@ -51,7 +52,8 @@ const createInterviewSchema = z.object({
     .int("Duration must be a whole number"),
   candidateId:   z.string().min(1, "candidateId is required"),
   companyId:     z.string().min(1, "companyId is required"),
-  interviewerId: z.string().optional().nullable(),
+  interviewerId: z.nullable(z.string()).optional(),
+  //             ^^ same fix here
 })
 
 /* ======================================================

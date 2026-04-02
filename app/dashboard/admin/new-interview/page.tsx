@@ -207,12 +207,12 @@ export default function NewInterviewPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
         body:    JSON.stringify({
           title:        title.trim(),
-          description:  description.trim() || null,
+          description:  description.trim() || undefined,
           duration:     Number(duration),
           startTime:    start.toISOString(),
           endTime:      end.toISOString(),
           candidateId: candidateId !== "none" ? candidateId : "",
-          interviewerId: (interviewerId && interviewerId !== "none") ? interviewerId : null,
+          interviewerId: (interviewerId && interviewerId !== "none") ? interviewerId : undefined,
           companyId: companyId !== "none" ? companyId : "",
         }),
       })
